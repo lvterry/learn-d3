@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8"></meta>
+    <script src="d3.js"></script>
+
+    <style>
+      body {
+        font: 13px 'Noto Sans', sans-serif;
+        padding: 30px;
+        margin: 0;
+      }
+
+      svg {
+        font-size: 10px;
+      }
+
+      path, line {
+        shape-rendering: crispEdges;
+      }
+
+      .axis path, .axis line {
+        stroke-width: 1;
+        fill: none;
+        stroke: #CCC;
+      }
+    </style>
+
+  </head>
+  <body>
+    <h1>Scatter plot</h1>
+    <svg id="scatterplot"></svg>
+
+    <h1>Table lens</h1>
+    <svg id="tablelens"></svg>
+
+    <script>
+      d3.csv('height-salary.csv', function(d){
+        scatterplot(d);
+        tablelens(d);
+      });
+
+      function tablelens(d) {
+        var padding = 60, width = 400 - 2 * padding, height = 600 - 2 * padding;
+
+        var tl = d3.select('#tablelens')
+          .attr('width', width + 2 * padding)
+            .attr('height', height + 2 * padding)
+          .append('g')
+            .attr('transform', 'translate(' + padding + ', ' + padding + ')');
+
+        var x = d3.scale.linear().domain([50, 80]).range([0, width]);
+        var y = d3.scale.ordinal().domain(d3.range(d.length)).rangeRoundBands([0, height], 0.3);
+
+        var xAxis = d3.svg.axis().scale(x).orient('bottom');
+        //var yAxis = d3.svg.axis().scale(y).orient('left');
+
+        tl.append('g').selectAll('rect')
+          .data(d)
+          .enter()
+          .append('rect')
+            .attr('width', function(d){ return x(+d.height); })
+            .attr('height', y.rangeBand())
+            .attr('x', 0)
+            .attr('y', function(d, i){ return y(i); })
+            .attr('fill', 'steelblue');
+
+        tl.append('g').attr('class', 'x axis').call(xAxis).tickSize([0, 6]);
+
+        // scatterplot.append('g')
+        //   .attr('class', 'y axis')
+        //   .call(yAxis);
+      }
+
+      function scatterplot(d) {
+        var padding = 60, width = 400 - 2 * padding, height = 300 - 2 * padding;
+
+        var scatterplot = d3.select('#scatterplot')
+            .attr('width', width + 2 * padding)
+            .attr('height', height + 2 * padding)
+          .append('g')
+            .attr('transform', 'translate(' + padding + ', ' + padding + ')');
+
+        var x = d3.scale.linear().domain([50, 80]).range([0, width]);
+        var y = d3.scale.linear().domain([40000, 75000]).range([height, 0]);
+
+        var xAxis = d3.svg.axis().scale(x).orient('bottom');
+        var yAxis = d3.svg.axis().scale(y).orient('left');
+
+        scatterplot.append('g').selectAll('circle')
+          .data(d)
+          .enter()
+          .append('circle')
+            .attr('r', 5)
+            .attr('fill', 'steelblue')
+            .attr('cx', function(d){ return x(+d.height); })
+            .attr('cy', function(d){ return y(+d.salary); });
+
+        scatterplot.append('g')
+          .attr('class', 'x axis')
+          .attr('transform', 'translate(0, ' + height + ')')
+          .call(xAxis);
+
+        scatterplot.append('g')
+          .attr('class', 'y axis')
+          .call(yAxis);
+      }
+
+
+
+
+
+    </script>
+
+  </body>
+</html>
