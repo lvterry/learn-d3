@@ -41,7 +41,7 @@
       });
 
       function tablelens(d) {
-        var padding = 60, width = 400 - 2 * padding, height = 600 - 2 * padding;
+        var padding = 60, width = 800 - 2 * padding, height = 600 - 2 * padding;
 
         var tl = d3.select('#tablelens')
           .attr('width', width + 2 * padding)
@@ -49,27 +49,40 @@
           .append('g')
             .attr('transform', 'translate(' + padding + ', ' + padding + ')');
 
-        var x = d3.scale.linear().domain([50, 80]).range([0, width]);
+        var xHeight = d3.scale.linear().domain([50, 80]).range([0, width / 2 - 50]),
+            xSalary = d3.scale.linear().domain([40000, 75000]).range([0, width / 2 - 50]);
+
         var y = d3.scale.ordinal().domain(d3.range(d.length)).rangeRoundBands([0, height], 0.3);
 
-        var xAxis = d3.svg.axis().scale(x).orient('bottom');
-        //var yAxis = d3.svg.axis().scale(y).orient('left');
+        var xHeightAxis = d3.svg.axis().scale(xHeight).orient('top'),
+            xSalaryAxis = d3.svg.axis().scale(xSalary).orient('top');
 
-        tl.append('g').selectAll('rect')
+        var height = tl.append('g'),
+            salary = tl.append('g').attr('transform', 'translate(' + width / 2 + ',0)');
+
+        height.selectAll('rect')
           .data(d)
           .enter()
           .append('rect')
-            .attr('width', function(d){ return x(+d.height); })
+            .attr('width', function(d){ return xHeight(+d.height); })
             .attr('height', y.rangeBand())
             .attr('x', 0)
             .attr('y', function(d, i){ return y(i); })
             .attr('fill', 'steelblue');
 
-        tl.append('g').attr('class', 'x axis').call(xAxis).tickSize([0, 6]);
+        height.append('g').attr('class', 'x axis').call(xHeightAxis);
 
-        // scatterplot.append('g')
-        //   .attr('class', 'y axis')
-        //   .call(yAxis);
+        salary.selectAll('rect')
+          .data(d)
+          .enter()
+          .append('rect')
+            .attr('width', function(d){ return xSalary(+d.salary); })
+            .attr('height', y.rangeBand())
+            .attr('x', 0)
+            .attr('y', function(d, i){ return y(i); })
+            .attr('fill', 'steelblue');
+
+        salary.append('g').attr('class', 'x axis').call(xSalaryAxis);
       }
 
       function scatterplot(d) {
@@ -105,11 +118,6 @@
           .attr('class', 'y axis')
           .call(yAxis);
       }
-
-
-
-
-
     </script>
 
   </body>
